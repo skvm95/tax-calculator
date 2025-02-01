@@ -1,8 +1,37 @@
 const express = require("express");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const swaggerJSDoc = require("swagger-jsdoc");
 
 const app = express();
 app.use(cors());
+
+// Swagger definition
+const swaggerDefinition = {
+  openapi: "3.0.0",
+  info: {
+    title: "Income Tax Calculator API",
+    version: "1.0.0",
+    description: "This API calculates the tax payable based on the income.",
+  },
+  servers: [
+    {
+      url: "http://localhost:5005", // Update to your deployment URL for production
+    },
+  ],
+};
+
+// Options for swagger-jsdoc
+const options = {
+  swaggerDefinition,
+  apis: ["server.js"], // Path to the API docs
+};
+
+// Initialize swagger-jsdoc
+const swaggerSpec = swaggerJSDoc(options);
+
+// Swagger UI setup
+app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const taxSlabs = [
   { limit: 400000, rate: 0 },
@@ -35,6 +64,54 @@ const calculateTax = (income) => {
 };
 
 // API endpoint using GET method and query params
+/**
+ * @swagger
+ * /calculateTax:
+ *   get:
+ *     summary: Calculate the tax payable based on income.
+ *     parameters:
+ *       - in: query
+ *         name: income
+ *         description: The CTC (annual income).
+ *         required: true
+ *         schema:
+ *           type: number
+ *           format: float
+ *       - in: query
+ *         name: basic
+ *         description: The basic salary. (Optional)
+ *         required: false
+ *         schema:
+ *           type: number
+ *           format: float
+ *       - in: query
+ *         name: mealCardOpted
+ *         description: Whether the meal card is opted. (Optional)
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [true, false]
+ *           default: true
+ *     responses:
+ *       200:
+ *         description: The calculated tax payable and in-hand salary.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 income:
+ *                   type: number
+ *                   format: float
+ *                 taxPayable:
+ *                   type: number
+ *                   format: float
+ *                 inhandSalary:
+ *                   type: number
+ *                   format: float
+ *       400:
+ *         description: Invalid income amount or parameters.
+ */
 app.get("/calculateTax", (req, res) => {
   const income = parseFloat(req.query.income);
   let basicIncome = parseFloat(req.query.basic);
