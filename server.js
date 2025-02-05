@@ -64,6 +64,54 @@ const calculateTax = (income) => {
 };
 
 // API endpoint using GET method and query params
+/**
+ * @swagger
+ * /calculateTax:
+ *   get:
+ *     summary: Calculate the tax payable based on income.
+ *     parameters:
+ *       - in: query
+ *         name: income
+ *         description: The CTC (annual income).
+ *         required: true
+ *         schema:
+ *           type: number
+ *           format: float
+ *       - in: query
+ *         name: basic
+ *         description: The basic salary. (Optional)
+ *         required: false
+ *         schema:
+ *           type: number
+ *           format: float
+ *       - in: query
+ *         name: mealCardOpted
+ *         description: Whether the meal card is opted. (Optional)
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [true, false]
+ *           default: true
+ *     responses:
+ *       200:
+ *         description: The calculated tax payable and in-hand salary.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 income:
+ *                   type: number
+ *                   format: float
+ *                 taxPayable:
+ *                   type: number
+ *                   format: float
+ *                 inhandSalary:
+ *                   type: number
+ *                   format: float
+ *       400:
+ *         description: Invalid income amount or parameters.
+ */
 app.get("/calculateTax", (req, res) => {
   const income = parseFloat(req.query.income);
   let basicIncome = parseFloat(req.query.basic);
